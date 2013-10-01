@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>TechSmith Learning Activity Capture</title>
+    <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="tincan.js"></script>
+    <script type="text/javascript" src="popup.js"></script>
+    <style type="text/css">
+    body 
+    {
+    min-width: 357px;
+    overflow-x: hidden;
+    }
+    #panel,#flip
+    {
+    padding:5px;
+    text-align:center;
+    background-color:#e5eecc;
+    border:solid 1px #c3c3c3;
+    }
+    #panel
+    {
+    padding:50px;
+    display:none;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="flip">Learning Activity Capture</div>
+    <div id="panel">
+      <table id="loginPanel">
+        <tr>
+          <td>Username:</td>
+          <td><input type="text" id="username"></td>
+        </tr>
+        <tr>
+          <td>Password:</td>
+          <td><input type="password" id="password"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td align="right"><button id="loginButton">Login</button></td>
+        </tr>
+      </table>
+      <div id="userPanel">
+        <button id="sendStatementButton">Send</button>
+        <button id="logoutButton">Logout</button>
+      </div>
+    </div>
+  </body>  
+</html>
+
