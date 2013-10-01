@@ -1,6 +1,8 @@
 var tincan;
 var loggedIn = 0;
 
+var transitionAnimationLength = 200;  // in ms
+
 $(document).ready ( function () {
 
 	// EVENTS
@@ -21,19 +23,14 @@ $(document).ready ( function () {
   loggedIn = localStorage.LRSLoggedIn;
   console.log("Logged in? " + loggedIn);
 
-  if (loggedIn !== null) {
+  if (loggedIn == 1) {
       var _username = localStorage.LRSUsername;
       var _password = localStorage.LRSPassword;
-
-      console.log("username: " + _username);
-      console.log("password: " + _password);
-      if (loggedIn == 1) {
-        login (_username, _password);
-        return;
-      }
+      login (_username, _password);
+      return;
   }
   $("#userPanel").hide();
-  $("#panel").slideDown (1000);
+  $("#panel").slideDown (transitionAnimationLength);
  });
 
 function login(m_username, m_password) {
@@ -65,10 +62,10 @@ function login(m_username, m_password) {
         }
         else {
           loggedIn = 1;
-          $("#panel").slideUp (1000, function () {
+          $("#panel").slideUp (transitionAnimationLength, function () {
             $("#userPanel").show();
             $("#loginPanel").hide();
-            $("#panel").slideDown (1000);
+            $("#panel").slideDown (transitionAnimationLength);
           });
         }
         localStorage.LRSLoggedIn = loggedIn;
@@ -83,10 +80,10 @@ function logout () {
   console.log("Logging out.");
   if(loggedIn == 1) {
     loggedIn = 0;
-    $("#panel").slideUp (1000, function () {
+    $("#panel").slideUp (transitionAnimationLength, function () {
       $("#userPanel").hide();
       $("#loginPanel").show();
-      $("#panel").slideDown (1000);
+      $("#panel").slideDown (transitionAnimationLength);
     });
   }
   localStorage.LRSLoggedIn = 0;
@@ -111,7 +108,7 @@ function sendStatement () {
           }
       };
 
-      statement.actor.mbox += localStorage.LRSUsername;
+      statement.actor.mbox = localStorage.LRSUsername;
       statement.verb.id = "http://adlnet.gov/expapi/verbs/experienced";
       statement.object.id = tab.url;
       
