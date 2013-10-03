@@ -17,6 +17,10 @@ $(document).ready ( function () {
       logout();
     });
 
+    $("#gotoWebsite").click (function () {
+      chrome.tabs.create ({url: $("#gotoWebsite").attr("href")});
+    });
+
   // END EVENTS
 
   loggedIn = 0;
@@ -40,7 +44,7 @@ function login(m_username, m_password) {
   loggedIn = 0;
   tincan = new TinCan ({
       recordStores: [{
-          endpoint: "http://35.9.22.105:8000/xapi/",
+          endpoint: "http://35.9.22.105:8000/xapi",
           username: m_username,
           password: m_password
         }]
