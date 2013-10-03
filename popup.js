@@ -20,7 +20,9 @@ $(document).ready ( function () {
   // END EVENTS
 
   loggedIn = 0;
-  loggedIn = localStorage.LRSLoggedIn;
+  if (localStorage.LRSLoggedIn) {
+    loggedIn = localStorage.LRSLoggedIn;
+  };
   console.log("Logged in? " + loggedIn);
 
   if (loggedIn == 1) {
@@ -62,6 +64,8 @@ function login(m_username, m_password) {
         }
         else {
           loggedIn = 1;
+          $("#sendStatementButton").attr("disabled", false);
+          $("#sendStatementButton").html ("Send");
           $("#panel").slideUp (transitionAnimationLength, function () {
             $("#userPanel").show();
             $("#loginPanel").hide();
