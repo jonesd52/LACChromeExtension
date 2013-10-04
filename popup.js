@@ -21,6 +21,10 @@ $(document).ready ( function () {
       chrome.tabs.create ({url: $("#gotoWebsite").attr("href")});
     });
 
+    $("#register").click (function () {
+      chrome.tabs.create ({url: $("#register").attr("href")});
+    });
+
   // END EVENTS
 
   loggedIn = 0;
@@ -44,7 +48,7 @@ function login(m_username, m_password) {
   loggedIn = 0;
   tincan = new TinCan ({
       recordStores: [{
-          endpoint: "http://35.9.22.105:8000/xapi",
+          endpoint: "http://35.9.22.105:8000/xapi/",
           username: m_username,
           password: m_password
         }]
@@ -104,7 +108,7 @@ function sendStatement () {
         var statement = {
           actor : {
             "objectType" : "Agent",
-            "mbox" : ""
+            "mbox" : "mailto:"
           },
           verb : {
             "id" : "",
@@ -112,11 +116,13 @@ function sendStatement () {
           },
           object : {
             "id" : "",
-            "definition" : {}
+            "definition" : {
+              "name": {"en-US":tab.title}
+            }
           }
       };
 
-      statement.actor.mbox = localStorage.LRSUsername;
+      statement.actor.mbox += localStorage.LRSUsername;
       statement.verb.id = "http://adlnet.gov/expapi/verbs/experienced";
       statement.object.id = tab.url;
       
