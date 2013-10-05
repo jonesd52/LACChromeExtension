@@ -11,7 +11,17 @@
   },
   "permissions": [
     "http://35.9.22.105:8000/xapi/",
-    "storage", "cookies",
+    "storage", "cookies", "background", "contextMenus",
     "tabs", "http://*/*", "https://*/*"
-  ]
+  ],
+
+  "background": {
+    "scripts": ["jquery-1.9.1.js", "tincan.js", "background.js"]
+  },
+
+  "content_scripts": [
+  {
+    "matches": ["http://*/*"],
+    "js": ["jquery-1.9.1.js", "contentscript.js"]
+    }]
 }
