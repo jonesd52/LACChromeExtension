@@ -6,15 +6,25 @@ var loggedIn = 0;
 var id = chrome.contextMenus.create(
 	{
 		"title": "Send Selection", 
-		"contexts": ["selection"],
+		"contexts": ["selection", "video", "image", "audio"],
 		"onclick": sendSelection
 		});
 
 function sendSelection () {
 	if(loggedIn == 0)
-		login(localStorage.LRSUsername, localStorage.LRSPassword, sendStatement);
+		login(localStorage.LRSUsername, localStorage.LRSPassword, function () { 
+      sendStatement(function (err) {
+        if(err !== null) {
+          alert(err.data);
+        }
+      }); 
+    });
 	else
-		sendStatement();
+		sendStatement(function (err) {
+      if(err !== null) {
+        alert(err.data);
+      }
+    });
 }
 
 // END CONTEXT MENU
@@ -54,14 +64,12 @@ login = function (m_username, m_password, success) {
 	});
 }
 
-sendStatement = function (button) {
+sendStatement = function (callback) {
   console.log("begin sending...");
-  if(button) button.attr("disabled", "disabled");
   console.log("getting tab...");
   getCurrentTab (function (tab) {
       if(tab) {
         console.log("getting selected text...");
-        // Get selected text
         chrome.tabs.sendMessage(tab.id, {method: "getSelection"}, function (response) {
           console.log("creating statement...");
           var statement = {
@@ -86,12 +94,13 @@ sendStatement = function (button) {
           console.log("sending statement...");
           tincan.sendStatement(statement, function () {
             console.log("Statement Sent.");
-            if(button) button.html ("Sent!");
+            callback(null);
           });
         });
       } else {
         console.log("Failed to send Statement");
-        if(button) button.attr("disabled", false);
+        callback({data: "failure to send"});
+        //if(button) button.attr("disabled", false);
       }
   });
 }

@@ -5,7 +5,16 @@ $(document).ready ( function () {
 
 	// EVENTS
 
-  	$("#sendStatementButton").click (function () {bgScript.sendStatement($("#sendStatementButton"))});
+  	$("#sendStatementButton").click (function () {
+      $("#sendStatementButton").attr("disabled", "disabled");
+      bgScript.sendStatement(function (err) {
+        if(err != null) {
+          $("#sendStatementButton").attr("disabled", false);
+        } else {
+          $("#sendStatementButton").html ("Sent!");
+        }
+      })
+    });
 
   	$("#loginButton").click (function () {
       bgScript.login($("#username").val(), $("#password").val(), loginAnimation);
