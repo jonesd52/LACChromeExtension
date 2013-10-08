@@ -3,12 +3,51 @@ var loggedIn = 0;
 
 // BEGIN CONTEXT MENU
 
-var id = chrome.contextMenus.create(
-	{
-		"title": "Send Selection", 
-		"contexts": ["selection", "video", "image", "audio"],
-		"onclick": sendSelection
-		});
+var id = chrome.contextMenus.create({
+	"title": "Send Selection", 
+	"contexts": ["selection", "video", "image", "audio"],
+	"onclick": contextClicked
+});
+
+function contextClicked (clickData, tab) {
+  console.log(JSON.stringify(clickData, null, 4));
+  if (clickData.mediaType == "image") {   // Also, "video" and "audio". Do this later, though.
+    // TODO: Send statement with photo link
+      // Obtain img Url from clickData.srcUrl
+      var obj = {
+        "id": clickData.pageUrl,
+        "definition": {
+          "name": {"en-US": tab.title},
+          "description": {"en-US": clickData.srcUrl}
+        }
+      };
+  }
+  if (clickData.selectionText != null || clickData.selectionText != "") {
+    var obj = {
+      "id": clickData.pageUrl,
+      "definition": {
+        "name": {"en-US": tab.title},
+        "description": {"en-US": clickData.selectionText}
+      }
+    };
+  }
+
+  if(loggedIn == 0)
+    login(localStorage.LRSUsername, localStorage.LRSPassword, function () { 
+      sendStatement(obj, function (err) {
+        if(err !== null) {
+          alert(err.data);
+        }
+      }); 
+    });
+  else
+    sendStatement(obj, function (err) {
+      if(err !== null) {
+        alert(err.data);
+      }
+    });
+
+}
 
 function sendSelection () {
 	if(loggedIn == 0)
@@ -64,13 +103,12 @@ login = function (m_username, m_password, success) {
 	});
 }
 
-sendStatement = function (callback) {
+sendStatement = function (obj, callback) {
   console.log("begin sending...");
-  console.log("getting tab...");
-  getCurrentTab (function (tab) {
-      if(tab) {
-        console.log("getting selected text...");
-        chrome.tabs.sendMessage(tab.id, {method: "getSelection"}, function (response) {
+//  getCurrentTab (function (tab) {
+//      if(tab) {
+  try {
+//        chrome.tabs.sendMessage(tab.id, {method: "getSelection"}, function (response) {
           console.log("creating statement...");
           var statement = {
             actor : {
@@ -81,13 +119,13 @@ sendStatement = function (callback) {
               "id" : "http://adlnet.gov/expapi/verbs/experienced",
               "display" : {}
             },
-            object : {
-              "id" : tab.url,
-              "definition" : {
-                "name": {"en-US":tab.title},
-                "description": {"en-US": response.data}
-              }
-            }
+            object : obj//{
+//              "id" : tab.url,
+//              "definition" : {
+//                "name": {"en-US":tab.title},
+//                "description": {"en-US": response.data}
+//              }
+//            }
           };
           console.log("statement created...");
 
@@ -96,13 +134,15 @@ sendStatement = function (callback) {
             console.log("Statement Sent.");
             callback(null);
           });
-        });
-      } else {
+//        });
+      } catch (err) {
+//      } else {
         console.log("Failed to send Statement");
-        callback({data: "failure to send"});
+        callback(err);
         //if(button) button.attr("disabled", false);
+//      }
       }
-  });
+//  });
 }
 
 logout = function (callback) {
@@ -116,7 +156,7 @@ logout = function (callback) {
 
 // END TIN CAN
 
-function getCurrentTab(callback) {
+getCurrentTab = function (callback) {
   chrome.tabs.query ({
       active: true,
       currentWindow: true

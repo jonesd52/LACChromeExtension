@@ -7,13 +7,24 @@ $(document).ready ( function () {
 
   	$("#sendStatementButton").click (function () {
       $("#sendStatementButton").attr("disabled", "disabled");
-      bgScript.sendStatement(function (err) {
-        if(err != null) {
-          $("#sendStatementButton").attr("disabled", false);
-        } else {
-          $("#sendStatementButton").html ("Sent!");
-        }
-      })
+      bgScript.getCurrentTab(function (tab) {
+        var obj = {
+          "id" : tab.url,
+          "definition" : {
+            "name": {"en-US": tab.title},
+            "description": {"en-US": ""}
+          }
+        };
+
+        bgScript.sendStatement(obj, function (err) {
+          if(err != null) {
+            $("#sendStatementButton").attr("disabled", false);
+          } else {
+            $("#sendStatementButton").html ("Sent!");
+          }
+        });
+
+      });
     });
 
   	$("#loginButton").click (function () {
