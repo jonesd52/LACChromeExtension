@@ -91,7 +91,8 @@ sendStatement = function (act, obj, callback) {
           var statement = {
             actor : {
               "objectType" : "Agent",
-              "mbox" : "mailto:" + localStorage.LRSUsername
+              "mbox" : "mailto:" + localStorage.LRSUsername,
+              "name" : localStorage.LRSUsername
             },
             verb : {
               "id" : "http://verbs/" + act + "/",
