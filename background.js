@@ -11,10 +11,13 @@ var id = chrome.contextMenus.create({
 
 function contextClicked (clickData, tab) {
   console.log(JSON.stringify(clickData, null, 4));
+  var act;
+  var obj;
   if (clickData.mediaType == "image") {   // Also, "video" and "audio". Do this later, though.
     // TODO: Send statement with photo link
       // Obtain img Url from clickData.srcUrl
-      var obj = {
+      act = "viewed";
+      obj = {
         "id": clickData.pageUrl,
         "definition": {
           "name": {"en-US": tab.title},
@@ -22,8 +25,9 @@ function contextClicked (clickData, tab) {
         }
       };
   }
-  if (clickData.selectionText != null || clickData.selectionText != "") {
-    var obj = {
+  else if (clickData.selectionText != null || clickData.selectionText != "") {
+    act = "read";
+    obj = {
       "id": clickData.pageUrl,
       "definition": {
         "name": {"en-US": tab.title},
@@ -33,37 +37,14 @@ function contextClicked (clickData, tab) {
   }
 
   if(loggedIn == 0)
-    login(localStorage.LRSUsername, localStorage.LRSPassword, function () { 
-      sendStatement(obj, function (err) {
-        if(err !== null) {
-          alert(err.data);
-        }
-      }); 
-    });
+    alert("You need to login before you can send activities.");
   else
-    sendStatement(obj, function (err) {
+    sendStatement(act, obj, function (err) {
       if(err !== null) {
         alert(err.data);
       }
     });
 
-}
-
-function sendSelection () {
-	if(loggedIn == 0)
-		login(localStorage.LRSUsername, localStorage.LRSPassword, function () { 
-      sendStatement(function (err) {
-        if(err !== null) {
-          alert(err.data);
-        }
-      }); 
-    });
-	else
-		sendStatement(function (err) {
-      if(err !== null) {
-        alert(err.data);
-      }
-    });
 }
 
 // END CONTEXT MENU
@@ -103,29 +84,21 @@ login = function (m_username, m_password, success) {
 	});
 }
 
-sendStatement = function (obj, callback) {
+sendStatement = function (act, obj, callback) {
   console.log("begin sending...");
-//  getCurrentTab (function (tab) {
-//      if(tab) {
   try {
-//        chrome.tabs.sendMessage(tab.id, {method: "getSelection"}, function (response) {
           console.log("creating statement...");
           var statement = {
             actor : {
               "objectType" : "Agent",
-              "mbox" : "mailto:" + localStorage.LRSUsername
+              "mbox" : "mailto:" + localStorage.LRSUsername,
+              "name" : localStorage.LRSUsername
             },
             verb : {
-              "id" : "http://adlnet.gov/expapi/verbs/experienced",
-              "display" : {}
+              "id" : "http://verbs/" + act + "/",
+              "display" : {"en-US": act }
             },
-            object : obj//{
-//              "id" : tab.url,
-//              "definition" : {
-//                "name": {"en-US":tab.title},
-//                "description": {"en-US": response.data}
-//              }
-//            }
+            object : obj
           };
           console.log("statement created...");
 
@@ -134,15 +107,10 @@ sendStatement = function (obj, callback) {
             console.log("Statement Sent.");
             callback(null);
           });
-//        });
       } catch (err) {
-//      } else {
         console.log("Failed to send Statement");
         callback(err);
-        //if(button) button.attr("disabled", false);
-//      }
       }
-//  });
 }
 
 logout = function (callback) {

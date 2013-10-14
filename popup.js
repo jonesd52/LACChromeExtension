@@ -8,6 +8,7 @@ $(document).ready ( function () {
   	$("#sendStatementButton").click (function () {
       $("#sendStatementButton").attr("disabled", "disabled");
       bgScript.getCurrentTab(function (tab) {
+        var act = "experienced";
         var obj = {
           "id" : tab.url,
           "definition" : {
@@ -16,7 +17,13 @@ $(document).ready ( function () {
           }
         };
 
-        bgScript.sendStatement(obj, function (err) {
+        console.log(tab.url);
+        if (tab.url.indexOf("http://www.youtube.com/watch?v=") != -1) {
+          act = "watched";
+          obj.definition.description['en-US'] = tab.url.substring(31);
+        }
+
+        bgScript.sendStatement(act, obj, function (err) {
           if(err != null) {
             $("#sendStatementButton").attr("disabled", false);
           } else {
