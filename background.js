@@ -1,11 +1,13 @@
 var tincan;
 var loggedIn = 0;
+var username = "";
+var password = "";
 
 // BEGIN CONTEXT MENU
 
 var id = chrome.contextMenus.create({
-	"title": "Send Selection", 
-	"contexts": ["selection", "video", "image", "audio"],
+	"title": "I Learned This", 
+	"contexts": ["selection", "image"],
 	"onclick": contextClicked
 });
 
@@ -13,12 +15,10 @@ function contextClicked (clickData, tab) {
   console.log(JSON.stringify(clickData, null, 4));
   var act;
   var obj;
-  if (clickData.mediaType == "image") {   // Also, "video" and "audio". Do this later, though.
-    // TODO: Send statement with photo link
-      // Obtain img Url from clickData.srcUrl
+  if (clickData.mediaType == "image") { 
       act = "viewed";
       obj = {
-        "id": clickData.pageUrl,
+        "id": clickData.pageUrl + "/" + clickData.srcUrl,
         "definition": {
           "name": {"en-US": tab.title},
           "description": {"en-US": clickData.srcUrl}
@@ -28,7 +28,7 @@ function contextClicked (clickData, tab) {
   else if (clickData.selectionText != null || clickData.selectionText != "") {
     act = "read";
     obj = {
-      "id": clickData.pageUrl,
+      "id": clickData.pageUrl + "/" + TinCan.Utils.getUUID(),
       "definition": {
         "name": {"en-US": tab.title},
         "description": {"en-US": clickData.selectionText}
@@ -36,14 +36,15 @@ function contextClicked (clickData, tab) {
     };
   }
 
-  if(loggedIn == 0)
+  if(loggedIn === 0) {
     alert("You need to login before you can send activities.");
-  else
+  } else {
     sendStatement(act, obj, function (err) {
       if(err !== null) {
         alert(err.data);
       }
     });
+  }
 
 }
 
@@ -51,8 +52,10 @@ function contextClicked (clickData, tab) {
 
 // BEGIN TIN CAN
 
-login = function (m_username, m_password, success) {
+login = function (m_username, m_password, callback) {
 	console.log("Logging in...");
+  username = "";
+  password = "";
 
 	tincan = new TinCan ({
   		recordStores: [{
@@ -66,56 +69,58 @@ login = function (m_username, m_password, success) {
 	{
 	  // 'params' is passed through to TinCan.LRS.queryStatements
 	  params: {
-	    since: "2013-09-22 07:42:10CDT",
+	    //since: "2013-09-22 07:42:10CDT",
 	    limit: 1
 	  },
 	  callback: function (err, result) {
 	    if (err !== null) {
 	      loggedIn = 0;
+        callback("Invalid Username and/or Password");
 	    }
 	    else {
 	      loggedIn = 1;
-	      success();
+        username = m_username;
+        password = m_password;
+	      callback(null);
 	    }
-		localStorage.LRSLoggedIn = loggedIn;
-		localStorage.LRSUsername = m_username;
-		localStorage.LRSPassword = m_password;
-      }
+  		localStorage.LRSLoggedIn = loggedIn;
+  		localStorage.LRSUsername = username;
+  		localStorage.LRSPassword = password;
+    }
 	});
 }
 
 sendStatement = function (act, obj, callback) {
   console.log("begin sending...");
-  try {
-          console.log("creating statement...");
-          var statement = {
-            actor : {
-              "objectType" : "Agent",
-              "mbox" : "mailto:" + localStorage.LRSUsername,
-              "name" : localStorage.LRSUsername
-            },
-            verb : {
-              "id" : "http://verbs/" + act + "/",
-              "display" : {"en-US": act }
-            },
-            object : obj
-          };
-          console.log("statement created...");
+  console.log("creating statement...");
+  var statement = {
+    actor : {
+      "objectType" : "Agent",
+      "mbox" : "mailto:" + localStorage.LRSUsername,
+      "name" : localStorage.LRSUsername
+    },
+    verb : {
+      "id" : "http://verbs/" + act + "/",
+      "display" : {"en-US": act.charAt(0).toUpperCase() + act.slice(1) }
+    },
+    object : obj
+  };
+  console.log("sending statement...");
 
-          console.log("sending statement...");
-          tincan.sendStatement(statement, function () {
-            console.log("Statement Sent.");
-            callback(null);
-          });
-      } catch (err) {
-        console.log("Failed to send Statement");
-        callback(err);
-      }
+  tincan.sendStatement(statement, function (err) {
+    if(err[0].err === null) {
+      console.log("Statement Sent.");
+    } else {
+      alert("Failed to Send Statement. Error: " + err[0].err);
+    }
+
+    callback(err[0].err);
+  });
 }
 
 logout = function (callback) {
   console.log("Logging out.");
-  if(loggedIn != 0) {
+  if(loggedIn !== 0) {
     loggedIn = 0;
     callback();
   }
