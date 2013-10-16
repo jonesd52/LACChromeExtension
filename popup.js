@@ -24,7 +24,8 @@ $(document).ready ( function () {
         }
 
         bgScript.sendStatement(act, obj, function (err) {
-          if(err != null) {
+          console.log("sendStatement: " + err); 
+          if(err !== null) {
             $("#sendStatementButton").attr("disabled", false);
           } else {
             $("#sendStatementButton").html ("Sent!");
@@ -35,7 +36,12 @@ $(document).ready ( function () {
     });
 
   	$("#loginButton").click (function () {
-      bgScript.login($("#username").val(), $("#password").val(), loginAnimation);
+      bgScript.login($("#username").val(), $("#password").val(), function (err) {
+        if(err === null)
+          loginAnimation();
+        else
+          alert(err);
+      });
   	});
 
     $("#logoutButton").click (function () {
@@ -54,7 +60,7 @@ $(document).ready ( function () {
 
   // LOGIN SEQUENCE
 
-  if(bgScript.loggedIn != 0) {
+  if(bgScript.loggedIn !== 0) {
     loginAnimation();
   } else {
     if(localStorage.LRSLoggedIn == 1) {
@@ -68,6 +74,7 @@ $(document).ready ( function () {
 });
 
 function loginAnimation() {
+  $("#userTitle").html(bgScript.username);
   $("#sendStatementButton").attr("disabled", false);
   $("#sendStatementButton").html ("Send");
   $("#panel").slideUp (transitionAnimationLength, function () {

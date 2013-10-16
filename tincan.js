@@ -1994,7 +1994,7 @@ TinCan client library
                                 alert("[warning] There was a problem communicating with the Learning Record Store. Aborted, offline, or invalid CORS endpoint (" + httpStatus + ")");
                             }
                             else {
-                                alert("[warning] There was a problem communicating with the Learning Record Store. (" + httpStatus + " | " + xhr.responseText+ ")");
+                                //alert("[warning] There was a problem communicating with the Learning Record Store. (" + httpStatus + " | " + xhr.responseText+ ")");
                             }
                         }
                         if (cfg.callback) {
