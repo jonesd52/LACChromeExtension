@@ -15,6 +15,10 @@
     "tabs", "http://*/*", "https://*/*"
   ],
 
+   "icons": {
+    "128": "icon-128.png"
+  },
+
   "background": {
     "scripts": ["jquery-1.9.1.js", "tincan.js", "background.js"]
   },
